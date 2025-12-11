@@ -12,9 +12,8 @@ import (
 // go get github.com/gorilla/mux
 func main() {
 	config.Load()
-
-	fmt.Println("Online!")
 	r := router.Generate()
 
+	fmt.Printf("Online on port: %d!\n", config.Port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), r))
 }

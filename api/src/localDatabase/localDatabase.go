@@ -1,4 +1,4 @@
-package database
+package localDatabase
 
 import (
 	"api/src/config"

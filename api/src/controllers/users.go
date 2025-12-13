@@ -5,6 +5,7 @@ import (
 	"api/src/models"
 	"api/src/repositories"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -28,7 +29,12 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	repository := repositories.NewUserRepository(db)
-	repository.Create(user)
+	userId, error := repository.Create(user)
+	if error != nil {
+		log.Fatal(error)
+	}
+
+	w.Write(fmt.Appendf(nil, "Id entered: %d", userId))
 }
 
 // SearchUsers select all users from the database

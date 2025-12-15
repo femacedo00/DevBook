@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 )
 
 // CreateUser insert a user into the database
@@ -48,7 +49,22 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // SearchUsers select all users from the database
 func SearchUsers(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Searching all users"))
+	nameOrNick := strings.ToLower(r.URL.Query().Get("user"))
+
+	db, error := localDatabase.Connect()
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer db.Close()
+
+	repositories := repositories.NewUserRepository(db)
+	users, error := repositories.Search(nameOrNick)
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+	}
+
+	response.JSON(w, http.StatusOK, users)
 }
 
 // SearchUser select a user from the database

@@ -102,3 +102,25 @@ func (repository users) SearchID(userID uint64) (models.User, error) {
 
 	return user, nil
 }
+
+// Update changes a user informations
+func (repository users) Update(userID uint64, user models.User) error {
+	statement, error := repository.db.Prepare(
+		"update users set name = ?, nick = ? , email = ? where id = ?",
+	)
+	if error != nil {
+		return error
+	}
+	defer statement.Close()
+
+	if _, error = statement.Exec(
+		user.Name,
+		user.Nick,
+		user.Email,
+		userID,
+	); error != nil {
+		return error
+	}
+
+	return nil
+}

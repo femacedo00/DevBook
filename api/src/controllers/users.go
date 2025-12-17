@@ -8,7 +8,10 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 // CreateUser insert a user into the database
@@ -58,8 +61,8 @@ func SearchUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	repositories := repositories.NewUserRepository(db)
-	users, error := repositories.Search(nameOrNick)
+	repository := repositories.NewUserRepository(db)
+	users, error := repository.Search(nameOrNick)
 	if error != nil {
 		response.Error(w, http.StatusInternalServerError, error)
 	}
@@ -69,7 +72,28 @@ func SearchUsers(w http.ResponseWriter, r *http.Request) {
 
 // SearchUser select a user from the database
 func SearchUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Searching a user"))
+	params := mux.Vars(r)
+
+	userID, error := strconv.ParseUint(params["userID"], 10, 64)
+	if error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	db, error := localDatabase.Connect()
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewUserRepository(db)
+	user, error := repository.SearchID(userID)
+	if error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+	}
+
+	response.JSON(w, http.StatusOK, user)
 }
 
 // UpdateUser update user values in the database

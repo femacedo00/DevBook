@@ -103,6 +103,30 @@ func (repository users) SearchID(userID uint64) (models.User, error) {
 	return user, nil
 }
 
+// SearchEmail returns a user (only id and password) matching an email
+func (repository users) SearchEmail(email string) (models.User, error) {
+	lines, error := repository.db.Query(
+		"select id, password from users where email = ?",
+		email,
+	)
+	if error != nil {
+		return models.User{}, error
+	}
+	defer lines.Close()
+
+	var user models.User
+
+	if lines.Next() {
+		if error = lines.Scan(
+			&user.ID,
+			&user.Password,
+		); error != nil {
+			return models.User{}, error
+		}
+	}
+	return user, nil
+}
+
 // Update changes a user informations
 func (repository users) Update(userID uint64, user models.User) error {
 	statement, error := repository.db.Prepare(

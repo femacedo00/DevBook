@@ -30,6 +30,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	db, error := localDatabase.Connect()
 	if error != nil {
 		response.Error(w, http.StatusInternalServerError, error)
+		return
 	}
 	defer db.Close()
 
@@ -37,6 +38,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	userDB, error := repository.SearchEmail(user.Email)
 	if error != nil {
 		response.Error(w, http.StatusInternalServerError, error)
+		return
 	}
 
 	if error := security.ValidatePassword(userDB.Password, user.Password); error != nil {
@@ -44,7 +46,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, _ := authentication.CreateToken(userDB.ID)
+	token, error := authentication.CreateToken(userDB.ID)
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
 	fmt.Println(token)
 	w.Write([]byte(token))
 

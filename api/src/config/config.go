@@ -15,6 +15,9 @@ var (
 
 	// Port where the api is accessible
 	Port = 0
+
+	// SecretKey is the key used to sign and verify tokens.
+	SecretKey []byte
 )
 
 // Load initializes the environment variables
@@ -36,4 +39,5 @@ func Load() {
 		os.Getenv("DB_NAME"),
 	)
 
+	SecretKey = []byte(os.Getenv("SECRET_KEY"))
 }

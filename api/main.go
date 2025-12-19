@@ -9,7 +9,6 @@ import (
 )
 
 // Before the first run we need to get:
-// go get github.com/gorilla/mux
 func main() {
 	config.Load()
 	r := router.Generate()

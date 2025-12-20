@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"api/src/authentication"
 	"api/src/localDatabase"
 	"api/src/models"
 	"api/src/repositories"
 	"api/src/response"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -104,6 +106,16 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	if error != nil {
 		response.Error(w, http.StatusBadRequest, error)
 		return
+	}
+
+	tokenUserID, error := authentication.ExtractUserId(r)
+	if error != nil {
+		response.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	if userID != tokenUserID {
+		response.Error(w, http.StatusForbidden, errors.New("User not match"))
 	}
 
 	bodyRequest, error := io.ReadAll(r.Body)

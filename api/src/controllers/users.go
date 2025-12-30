@@ -186,3 +186,39 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	response.JSON(w, http.StatusNoContent, nil)
 }
+
+// FollowUser allows a user to follow another user
+func FollowUser(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	userID, error := strconv.ParseUint(params["userId"], 10, 64)
+	if error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	followerID, error := authentication.ExtractUserId(r)
+	if error != nil {
+		response.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	if userID == followerID {
+		response.Error(w, http.StatusForbidden, errors.New("User can not follow itself"))
+		return
+	}
+
+	db, error := localDatabase.Connect()
+	if error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewUserRepository(db)
+	if error = repository.Follow(userID, followerID); error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	response.JSON(w, http.StatusNoContent, nil)
+}

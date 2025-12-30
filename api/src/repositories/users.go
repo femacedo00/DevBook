@@ -163,3 +163,20 @@ func (repository users) Delete(userID uint64) error {
 
 	return nil
 }
+
+// Follow allows a user to follow another user
+func (repository users) Follow(userID, followerID uint64) error {
+	statement, error := repository.db.Prepare(
+		"insert ignore into followers (user_id, follower_id) values (?,?)",
+	)
+	if error != nil {
+		return error
+	}
+	defer statement.Close()
+
+	if _, error = statement.Exec(userID, followerID); error != nil {
+		return error
+	}
+
+	return nil
+}

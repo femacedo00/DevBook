@@ -127,6 +127,29 @@ func (repository users) SearchEmail(email string) (models.User, error) {
 	return user, nil
 }
 
+// SearchPassword returns yhr password for a given user ID
+func (repository users) SearchPassword(userID uint64) (string, error) {
+	lines, error := repository.db.Query(
+		"select password from users where id = ?",
+		userID,
+	)
+	if error != nil {
+		return "", error
+	}
+	defer lines.Close()
+
+	var user models.User
+
+	if lines.Next() {
+		if error = lines.Scan(
+			&user.Password,
+		); error != nil {
+			return "", error
+		}
+	}
+	return user.Password, nil
+}
+
 // Update changes a user informations
 func (repository users) Update(userID uint64, user models.User) error {
 	statement, error := repository.db.Prepare(
@@ -141,6 +164,26 @@ func (repository users) Update(userID uint64, user models.User) error {
 		user.Name,
 		user.Nick,
 		user.Email,
+		userID,
+	); error != nil {
+		return error
+	}
+
+	return nil
+}
+
+// UpdatePasword changes user password in the database
+func (repository users) UpdatePasword(userID uint64, password string) error {
+	statement, error := repository.db.Prepare(
+		"update users set password = ? where id = ?",
+	)
+	if error != nil {
+		return error
+	}
+	defer statement.Close()
+
+	if _, error = statement.Exec(
+		password,
 		userID,
 	); error != nil {
 		return error

@@ -6,6 +6,7 @@ import (
 	"api/src/models"
 	"api/src/repositories"
 	"api/src/response"
+	"api/src/security"
 	"encoding/json"
 	"errors"
 	"io"
@@ -149,6 +150,71 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.JSON(w, http.StatusNoContent, nil)
+}
+
+// UpdatePassword update user password in the database
+func UpdatePassword(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	userID, error := strconv.ParseUint(params["userId"], 10, 64)
+	if error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	tokenUserID, error := authentication.ExtractUserId(r)
+	if error != nil {
+		response.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	if userID != tokenUserID {
+		response.Error(w, http.StatusUnauthorized, errors.New("User not match"))
+		return
+	}
+
+	bodyRequest, error := io.ReadAll(r.Body)
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	var password models.Password
+	if error = json.Unmarshal(bodyRequest, &password); error != nil {
+		response.Error(w, http.StatusUnprocessableEntity, error)
+		return
+	}
+
+	db, error := localDatabase.Connect()
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewUserRepository(db)
+	passwordDB, error := repository.SearchPassword(userID)
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	if error = security.ValidatePassword(passwordDB, password.Current); error != nil {
+		response.Error(w, http.StatusUnauthorized, errors.New("Current password does not match the password stored in the database"))
+		return
+	}
+
+	hashedPassword, error := security.Hash(password.New)
+	if error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	if error = repository.UpdatePasword(userID, string(hashedPassword)); error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, nil)
 }
 
 // DeleteUser delete user from the database

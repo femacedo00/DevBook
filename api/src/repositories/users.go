@@ -231,3 +231,37 @@ func (repository users) SearchFollowers(userID uint64) ([]models.User, error) {
 
 	return followers, nil
 }
+
+// SearchFollowing returns all users that a specific user is following
+func (repository users) SearchFollowing(userID uint64) ([]models.User, error) {
+	lines, error := repository.db.Query(`
+		select u.id, u.name, u.nick, u.email, u.createdIn
+		from users u join followers f
+		on  u.id = f.user_id
+		where f.follower_id = ?
+	`, userID)
+	if error != nil {
+		return nil, error
+	}
+	defer lines.Close()
+
+	var following []models.User
+
+	for lines.Next() {
+		var follower models.User
+
+		if error = lines.Scan(
+			&follower.ID,
+			&follower.Name,
+			&follower.Nick,
+			&follower.Email,
+			&follower.CreatedIn,
+		); error != nil {
+			return nil, error
+		}
+
+		following = append(following, follower)
+	}
+
+	return following, nil
+}

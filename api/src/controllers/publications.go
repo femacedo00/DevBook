@@ -7,6 +7,7 @@ import (
 	"api/src/repositories"
 	"api/src/response"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -110,7 +111,63 @@ func SearchPublication(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdatePublications update publication values into the database
-func UpdatePublications(w http.ResponseWriter, r *http.Request) {}
+func UpdatePublications(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	publicationID, error := strconv.ParseUint(params["publicationId"], 10, 64)
+	if error != nil {
+		response.Error(w, http.StatusBadGateway, error)
+		return
+	}
+
+	userID, error := authentication.ExtractUserId(r)
+	if error != nil {
+		response.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	db, error := localDatabase.Connect()
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewPublicationRepository(db)
+	publicationDB, error := repository.SearchID(publicationID)
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	if publicationDB.AuthorID != userID {
+		response.Error(w, http.StatusForbidden, errors.New("User not match"))
+		return
+	}
+
+	bodyRequest, error := io.ReadAll(r.Body)
+	if error != nil {
+		response.Error(w, http.StatusUnprocessableEntity, error)
+		return
+	}
+
+	var publication models.Publication
+	if error = json.Unmarshal(bodyRequest, &publication); error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	if error = publication.Prepare(); error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	if error = repository.Update(publicationID, publication); error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, nil)
+}
 
 // DeletePublications delete publication from the database
 func DeletePublications(w http.ResponseWriter, r *http.Request) {}

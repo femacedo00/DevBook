@@ -108,3 +108,20 @@ func (repository Publications) SearchID(PublicationId uint64) (models.Publicatio
 	}
 	return publication, nil
 }
+
+// Update changes a publication informations into database
+func (repository Publications) Update(publicationID uint64, publication models.Publication) error {
+	statement, error := repository.db.Prepare(
+		"update publications set title = ?, content = ? where id = ?",
+	)
+	if error != nil {
+		return error
+	}
+	defer statement.Close()
+
+	if _, error := statement.Exec(publication.Title, publication.Content, publicationID); error != nil {
+		return error
+	}
+
+	return nil
+}

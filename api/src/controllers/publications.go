@@ -60,7 +60,27 @@ func CreatePublications(w http.ResponseWriter, r *http.Request) {
 
 // SearchPublications selects all publications from user and their followers
 func SearchPublications(w http.ResponseWriter, r *http.Request) {
+	userID, error := authentication.ExtractUserId(r)
+	if error != nil {
+		response.Error(w, http.StatusUnauthorized, error)
+		return
+	}
 
+	db, error := localDatabase.Connect()
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewPublicationRepository(db)
+	publications, error := repository.Search(userID)
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, publications)
 }
 
 // SearchPublication select a publication from database

@@ -19,3 +19,15 @@ values
     (3,6),
     (6,2),
     (2,6);
+
+insert into publications
+    (title, content, author_id)
+values
+    ("Hello World", "This is my first publication here! Happy to join this network.", 1),
+    ("Golang is awesome", "I am currently learning how to build APIs using Go. The performance is incredible!", 2),
+    ("Morning routine", "Nothing beats a fresh cup of coffee and some coding early in the morning.", 3),
+    ("Work-Life Balance", "Remember to take breaks. Your mental health is as important as your career.", 4),
+    ("Database Design", "Spent the whole day optimizing my SQL queries. Hard work pays off!", 5),
+    ("Networking", "It is not just about code; it is about the people you meet along the way.", 6),
+    ("The Power of Open Source", "Contributing to open source projects is the best way to level up your skills.", 7),
+    ("API Security", "Always remember to use JWT and bcrypt to protect your users' data.", 2);

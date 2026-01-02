@@ -38,6 +38,45 @@ func (repository Publications) Create(publication models.Publication) (uint64, e
 	return uint64(lastId), nil
 }
 
+// SearchID returns all publications from user and their followers
+func (repository Publications) Search(userID uint64) ([]models.Publication, error) {
+	lines, error := repository.db.Query(`
+		select distinct p.*, u.nick
+		from publications p 
+		join users u
+		on p.author_id = u.id
+		left join followers f
+		on u.id = f.user_id
+		where u.id = ? or f.follower_id = ?
+		order by 1 desc
+	`, userID, userID)
+	if error != nil {
+		return nil, error
+	}
+	defer lines.Close()
+
+	var publications []models.Publication
+
+	for lines.Next() {
+		var publication models.Publication
+
+		if error = lines.Scan(
+			&publication.ID,
+			&publication.Title,
+			&publication.Content,
+			&publication.AuthorID,
+			&publication.Likes,
+			&publication.CreatedIn,
+			&publication.AuthorNick,
+		); error != nil {
+			return nil, error
+		}
+
+		publications = append(publications, publication)
+	}
+	return publications, nil
+}
+
 // SearchID returns a publication matching an id
 func (repository Publications) SearchID(PublicationId uint64) (models.Publication, error) {
 	lines, error := repository.db.Query(`

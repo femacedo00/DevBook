@@ -170,4 +170,43 @@ func UpdatePublications(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeletePublications delete publication from the database
-func DeletePublications(w http.ResponseWriter, r *http.Request) {}
+func DeletePublications(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	publicationID, error := strconv.ParseUint(params["publicationId"], 10, 64)
+	if error != nil {
+		response.Error(w, http.StatusBadGateway, error)
+		return
+	}
+
+	userID, error := authentication.ExtractUserId(r)
+	if error != nil {
+		response.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	db, error := localDatabase.Connect()
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewPublicationRepository(db)
+	publicationDB, error := repository.SearchID(publicationID)
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	if publicationDB.AuthorID != userID {
+		response.Error(w, http.StatusForbidden, errors.New("User not match"))
+		return
+	}
+
+	if error = repository.Delete(publicationID); error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	response.JSON(w, http.StatusNoContent, nil)
+}

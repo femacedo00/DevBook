@@ -7,6 +7,7 @@ values
     ("User 4", "user_4", "user4@gmail.com", "$2a$10$JWJVMangO8mGVB9suAIsWOO/bqLlW1aHW.l6xndunqT0n7OKJRgkS"),
     ("User 5", "user_5", "user5@gmail.com", "$2a$10$JWJVMangO8mGVB9suAIsWOO/bqLlW1aHW.l6xndunqT0n7OKJRgkS"),
     ("User 6", "user_6", "user6@gmail.com", "$2a$10$JWJVMangO8mGVB9suAIsWOO/bqLlW1aHW.l6xndunqT0n7OKJRgkS");
+    ("User 7", "user_7", "user7@gmail.com", "$2a$10$JWJVMangO8mGVB9suAIsWOO/bqLlW1aHW.l6xndunqT0n7OKJRgkS");
 
 insert into followers
     (user_id, follower_id)

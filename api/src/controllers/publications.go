@@ -9,6 +9,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // CreatePublications insert a publication into the database
@@ -56,10 +59,35 @@ func CreatePublications(w http.ResponseWriter, r *http.Request) {
 }
 
 // SearchPublications selects all publications from user and their followers
-func SearchPublications(w http.ResponseWriter, r *http.Request) {}
+func SearchPublications(w http.ResponseWriter, r *http.Request) {
+
+}
 
 // SearchPublication select a publication from database
-func SearchPublication(w http.ResponseWriter, r *http.Request) {}
+func SearchPublication(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	publicationID, error := strconv.ParseUint(params["publicationId"], 10, 64)
+	if error != nil {
+		response.Error(w, http.StatusBadGateway, error)
+		return
+	}
+
+	db, error := localDatabase.Connect()
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewPublicationRepository(db)
+	publication, error := repository.SearchID(publicationID)
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, publication)
+}
 
 // UpdatePublications update publication values into the database
 func UpdatePublications(w http.ResponseWriter, r *http.Request) {}

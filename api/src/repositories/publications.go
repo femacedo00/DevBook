@@ -37,3 +37,35 @@ func (repository Publications) Create(publication models.Publication) (uint64, e
 
 	return uint64(lastId), nil
 }
+
+// SearchID returns a publication matching an id
+func (repository Publications) SearchID(PublicationId uint64) (models.Publication, error) {
+	lines, error := repository.db.Query(`
+		select p.*, u.nick
+		from publications p 
+		join users u
+		on p.author_id = u.id
+		where p.id = ?
+	`, PublicationId)
+	if error != nil {
+		return models.Publication{}, error
+	}
+	defer lines.Close()
+
+	var publication models.Publication
+
+	if lines.Next() {
+		if error = lines.Scan(
+			&publication.ID,
+			&publication.Title,
+			&publication.Content,
+			&publication.AuthorID,
+			&publication.Likes,
+			&publication.CreatedIn,
+			&publication.AuthorNick,
+		); error != nil {
+			return models.Publication{}, error
+		}
+	}
+	return publication, nil
+}

@@ -42,4 +42,10 @@ var PublicationsRoutes = []Route{
 		Function: controllers.SearchPublicationsByUser,
 		NeedAuth: true,
 	},
+	{
+		URI:      "/publications/{publicationId}/like",
+		Method:   http.MethodPost,
+		Function: controllers.LikePublication,
+		NeedAuth: true,
+	},
 }

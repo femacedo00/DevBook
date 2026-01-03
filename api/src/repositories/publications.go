@@ -179,3 +179,20 @@ func (repository Publications) Delete(publicationID uint64) error {
 
 	return nil
 }
+
+// Like increments the likes in the database
+func (repository Publications) Like(publicationID uint64) error {
+	statement, error := repository.db.Prepare(
+		"update publications set likes = likes + 1 where id = ?",
+	)
+	if error != nil {
+		return error
+	}
+	defer statement.Close()
+
+	if _, error := statement.Exec(publicationID); error != nil {
+		return error
+	}
+
+	return nil
+}

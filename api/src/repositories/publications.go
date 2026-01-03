@@ -109,6 +109,43 @@ func (repository Publications) SearchID(PublicationId uint64) (models.Publicatio
 	return publication, nil
 }
 
+// SearchUserID returns all publications matching a user id
+func (repository Publications) SearchUserID(userId uint64) ([]models.Publication, error) {
+	lines, error := repository.db.Query(`
+		select p.*, u.nick
+		from publications p 
+		join users u
+		on p.author_id = u.id
+		where p.author_id = ?
+		order by 1 desc
+	`, userId)
+	if error != nil {
+		return nil, error
+	}
+	defer lines.Close()
+
+	var publications []models.Publication
+
+	for lines.Next() {
+		var publication models.Publication
+
+		if error = lines.Scan(
+			&publication.ID,
+			&publication.Title,
+			&publication.Content,
+			&publication.AuthorID,
+			&publication.Likes,
+			&publication.CreatedIn,
+			&publication.AuthorNick,
+		); error != nil {
+			return nil, error
+		}
+
+		publications = append(publications, publication)
+	}
+	return publications, nil
+}
+
 // Update changes a publication informations into database
 func (repository Publications) Update(publicationID uint64, publication models.Publication) error {
 	statement, error := repository.db.Prepare(

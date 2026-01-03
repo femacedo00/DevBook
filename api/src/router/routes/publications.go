@@ -48,4 +48,10 @@ var PublicationsRoutes = []Route{
 		Function: controllers.LikePublication,
 		NeedAuth: true,
 	},
+	{
+		URI:      "/publications/{publicationId}/dislike",
+		Method:   http.MethodPost,
+		Function: controllers.DislikePublication,
+		NeedAuth: true,
+	},
 }

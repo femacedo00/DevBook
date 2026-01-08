@@ -17,5 +17,10 @@ function registerUser(event) {
            nick: $("#nick").val(),
            password: $("#password").val()
         }
-    })
+    }).done(function() {
+        alert("User Successufully Registered!");
+    }).fail(function(error) {
+        console.log(error);
+        alert("User Registration Failed!")
+    });
 }

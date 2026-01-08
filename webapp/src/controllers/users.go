@@ -3,9 +3,8 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
+	"webapp/src/response"
 )
 
 // UserRegister calls an API to register a user in the database
@@ -20,14 +19,18 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if error != nil {
-		log.Fatal(error)
+		response.JSON(w, http.StatusBadRequest, response.ErrorAPI{Error: error.Error()})
 	}
 
-	response, error := http.Post("http://localhost:5000/users", "application/json", bytes.NewBuffer(user))
+	getResponse, error := http.Post("http://localhost:5000/users", "application/json", bytes.NewBuffer(user))
 	if error != nil {
-		log.Fatal(error)
+		response.JSON(w, http.StatusInternalServerError, response.ErrorAPI{Error: error.Error()})
 	}
-	defer response.Body.Close()
+	defer getResponse.Body.Close()
 
-	fmt.Println(response.Body)
+	if getResponse.StatusCode >= 400 {
+		response.HandleErrorStatusCode(w, getResponse)
+	}
+
+	response.JSON(w, getResponse.StatusCode, nil)
 }

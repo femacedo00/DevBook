@@ -21,7 +21,7 @@ func JSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	}
 }
 
-// // handleErrorStatusCode treats all request with status bigger or equal to 400
+// handleErrorStatusCode treats all request with status bigger or equal to 400
 func HandleErrorStatusCode(w http.ResponseWriter, r *http.Response) {
 	var errorAPI ErrorAPI
 	json.NewDecoder(r.Body).Decode(&errorAPI)

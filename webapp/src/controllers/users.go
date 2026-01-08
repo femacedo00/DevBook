@@ -20,11 +20,13 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 
 	if error != nil {
 		response.JSON(w, http.StatusBadRequest, response.ErrorAPI{Error: error.Error()})
+		return
 	}
 
 	getResponse, error := http.Post("http://localhost:5000/users", "application/json", bytes.NewBuffer(user))
 	if error != nil {
 		response.JSON(w, http.StatusInternalServerError, response.ErrorAPI{Error: error.Error()})
+		return
 	}
 	defer getResponse.Body.Close()
 

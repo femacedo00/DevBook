@@ -32,6 +32,7 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 
 	if getResponse.StatusCode >= 400 {
 		response.HandleErrorStatusCode(w, getResponse)
+		return
 	}
 
 	response.JSON(w, getResponse.StatusCode, nil)

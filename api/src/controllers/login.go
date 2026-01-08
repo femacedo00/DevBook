@@ -8,9 +8,9 @@ import (
 	"api/src/response"
 	"api/src/security"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 // Login authenticated a user
@@ -51,7 +51,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		response.Error(w, http.StatusInternalServerError, error)
 		return
 	}
-	fmt.Println(token)
-	w.Write([]byte(token))
+
+	userID := strconv.FormatUint(userDB.ID, 10)
+
+	response.JSON(w, http.StatusOK, models.AuthData{ID: userID, Token: token})
 
 }

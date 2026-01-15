@@ -5,7 +5,7 @@ import (
 	"webapp/src/controllers"
 )
 
-var routeHomePage = Route{
+var homePageRoute = Route{
 	URI:      "/home",
 	Method:   http.MethodGet,
 	Function: controllers.LoadHomePage,

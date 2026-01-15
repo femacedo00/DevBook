@@ -18,7 +18,8 @@ type Route struct {
 func Config(router *mux.Router) *mux.Router {
 	routes := routesLogin
 	routes = append(routes, userRoutes...)
-	routes = append(routes, routeHomePage)
+	routes = append(routes, homePageRoute)
+	routes = append(routes, publicationsRoutes...)
 
 	for _, route := range routes {
 		if route.NeedAuth {

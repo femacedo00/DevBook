@@ -12,6 +12,7 @@ function createPublication(event) {
         }
     }).done(function(){
         alert("Post saved successfully!");
+        window.location = "/home";
     }).fail(function(){
         alert("Error saving post!");
     });

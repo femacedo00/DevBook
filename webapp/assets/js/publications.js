@@ -1,5 +1,7 @@
 $("#new-publication").on("submit", createPublication);
-$(".like-publication").on("click", likePublication);
+
+$(document).on("click", ".like-publication", likePublication);
+$(document).on("click", ".dislike-publication", dislikePublication);
 
 function createPublication(event) {
     event.preventDefault();
@@ -34,8 +36,38 @@ function likePublication(event) {
         const amountLikes = parseInt(countLikes.text());
 
         countLikes.text(amountLikes + 1);
+
+        likeElement.addClass("dislike-publication")
+        likeElement.addClass("text-danger")
+        likeElement.removeClass("like-publication")
     }).fail(function () {
         alert("Error liking the post!")
+    }).always(function () {
+        likeElement.prop("disabled", false);
+    });
+}
+
+function dislikePublication(event) {
+    event.preventDefault();
+
+    const likeElement = $(event.target);
+    const publicationID = likeElement.closest("div.bg-body-tertiary").data("publication-id");
+
+    likeElement.prop("disabled", true)
+    $.ajax({
+        url: `/publications/${publicationID}/dislike`,
+        method: "POST"
+    }).done(function () {
+        const countLikes = likeElement.next("span");
+        const amountLikes = parseInt(countLikes.text());
+
+        countLikes.text(amountLikes - 1);
+
+        likeElement.removeClass("dislike-publication")
+        likeElement.removeClass("text-danger")
+        likeElement.addClass("like-publication")
+    }).fail(function () {
+        alert("Error disliking the post!")
     }).always(function () {
         likeElement.prop("disabled", false);
     });

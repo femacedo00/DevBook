@@ -1,4 +1,5 @@
 $("#new-publication").on("submit", createPublication);
+$("#update-publication").on("click", updatePublication);
 
 $(document).on("click", ".like-publication", likePublication);
 $(document).on("click", ".dislike-publication", dislikePublication);
@@ -14,7 +15,7 @@ function createPublication(event) {
             content: $('#content').val(),
         }
     }).done(function () {
-        alert("Post saved successfully!");
+        alert("Post successfully saved!");
         window.location = "/home";
     }).fail(function () {
         alert("Error saving post!");
@@ -70,5 +71,27 @@ function dislikePublication(event) {
         alert("Error disliking the post!")
     }).always(function () {
         likeElement.prop("disabled", false);
+    });
+}
+
+function updatePublication() {
+    const publication = this;
+    const publicationID =  $(publication).data("publication-id");
+    
+    $(publication).prop("disabled", true);
+
+    $.ajax({
+        url: `/publications/${publicationID}`,
+        method: "PUT",
+        data: {
+            title: $("#title").val(),
+            content: $("#content").val(),
+        }
+    }).done(function(){
+        alert("Post successfully updated")
+    }).fail(function(){
+        alert("Error updating the post!")
+    }).always(function(){
+        $(publication).prop("disabled", false);
     });
 }

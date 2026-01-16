@@ -25,9 +25,15 @@ var publicationsRoutes = []Route{
 		NeedAuth: true,
 	},
 	{
-		URI:      "/publications/{publicationID}/edit",
+		URI:      "/publications/{publicationID}/update",
 		Method:   http.MethodGet,
-		Function: controllers.LoadEditPublicationPage,
+		Function: controllers.LoadUpdatePublicationPage,
+		NeedAuth: true,
+	},
+	{
+		URI:      "/publications/{publicationID}",
+		Method:   http.MethodPut,
+		Function: controllers.UpdatePublication,
 		NeedAuth: true,
 	},
 }

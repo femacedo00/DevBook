@@ -14,7 +14,7 @@
     <div class="container-fluid">
         <div class="row mt-4">
             <div class="col-12">
-                <h3>Edit Post</h3>
+                <h3>Update Post</h3>
                 <div class="form-group">
                     <label for="title">Title</label>
                     <input type="text" class="form-control" id="title" name="title"
@@ -26,7 +26,7 @@
                         placeholder="Enter the content of your post" required>{{ .Content }}</textarea>
                 </div>
                 <button id="update-publication" class="btn btn-info my-2" data-publication-id="{{ .ID }}">
-                    Update
+                    Save Changes
                 </button>
             </div>
         </div>
@@ -34,7 +34,7 @@
 
     {{ template "footer" }}
     {{ template "scripts" }}
-    <!-- <script src="/assets/js/publications.js"></script> -->
+    <script src="/assets/js/publications.js"></script>
 </body>
 
 </html>

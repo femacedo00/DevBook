@@ -58,8 +58,8 @@ func LoadHomePage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// LoadEditPublicationPage loads edit publication page
-func LoadEditPublicationPage(w http.ResponseWriter, r *http.Request) {
+// LoadUpdatePublicationPage loads edit publication page
+func LoadUpdatePublicationPage(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	publicationID, error := strconv.ParseUint(params["publicationID"], 10, 64)
 	if error != nil {

@@ -12,4 +12,10 @@ var publicationsRoutes = []Route{
 		Function: controllers.CreatePublications,
 		NeedAuth: true,
 	},
+	{
+		URI:      "/publications/{publicationID}/like",
+		Method:   http.MethodPost,
+		Function: controllers.LikePublication,
+		NeedAuth: true,
+	},
 }

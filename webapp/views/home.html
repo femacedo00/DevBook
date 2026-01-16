@@ -36,17 +36,11 @@
             </div>
             <div class="col-12 col-md-7">
                 {{range .Publications}}
-                <div class="p-5 mb-4 bg-body-tertiary rounded-3">
-                    <div class="container-fluid py-5">
-                        <h1 class="display-4 fw-bold">{{ .Title }}</h1>
-                        <p class="col-md-8 fs-4">{{ .Content }}</p>
-                        <a href="#">{{ .AuthorNick }} - {{ .CreatedIn }}</a>
-                        <hr class="my-4">
-                        {{ if (eq .AuthorID $.UserID) }}
-                        <p>author</p>
-                        {{ end }}
-                    </div>
-                </div>
+                    {{ if (eq .AuthorID $.UserID) }}
+                        {{ template "permission-with-permission" . }}
+                    {{ else }}
+                        {{ template "permission-without-permission" . }}
+                    {{ end }}
                 {{ end }}
             </div>
         </div>

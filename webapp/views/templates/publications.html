@@ -1,13 +1,20 @@
 {{ define "likes" }}
-    <span> {{ .Likes }} likes </span>
+    <span> 
+        <i class="fa-solid fa-heart"></i>
+        {{ .Likes }} 
+    </span>
 {{ end }}
 
 {{ define "edit" }}
-    <a href="/edit">Edit Post</a>
+    <a href="/edit" style="text-decoration: none;">
+        <i class="fa-solid fa-pen-to-square"></i>
+    </a>
 {{ end }}
 
 {{ define "delete" }}
-    <a href="/delete">Delete Post</a>
+    <a href="/delete" style="text-decoration: none;">
+        <i class="fa-solid fa-trash text-danger"></i>
+    </a>
 {{ end }}
 
 {{ define "header-publication" }}

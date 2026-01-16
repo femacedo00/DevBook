@@ -16,12 +16,10 @@ func JSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 
-	if data == nil {
-		data = struct{}{}
-	}
-
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		log.Fatal(err)
+	if statusCode != http.StatusNoContent {
+		if error := json.NewEncoder(w).Encode(data); error != nil {
+			log.Fatal(error)
+		}
 	}
 }
 

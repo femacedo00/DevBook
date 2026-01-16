@@ -98,7 +98,7 @@ func DislikePublication(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, getResponse.StatusCode, nil)
 }
 
-// UpdatePublication update a publication into the database
+// UpdatePublication updates a publication into the database
 func UpdatePublication(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	publicationID, error := strconv.ParseUint(params["publicationID"], 10, 64)
@@ -122,6 +122,33 @@ func UpdatePublication(w http.ResponseWriter, r *http.Request) {
 
 	url := fmt.Sprintf("%s/publications/%d", config.APIURL, publicationID)
 	getResponse, error := request.RequestWithAuth(r, http.MethodPut, url, bytes.NewBuffer(publication))
+
+	if error != nil {
+		response.JSON(w, http.StatusInternalServerError, response.ErrorAPI{Error: error.Error()})
+		return
+	}
+	defer getResponse.Body.Close()
+
+	if getResponse.StatusCode >= 400 {
+		response.HandleErrorStatusCode(w, getResponse)
+		return
+	}
+
+	response.JSON(w, getResponse.StatusCode, nil)
+}
+
+// DeletePublication removes a publication from the database
+func DeletePublication(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	publicationID, error := strconv.ParseUint(params["publicationID"], 10, 64)
+
+	if error != nil {
+		response.JSON(w, http.StatusBadRequest, response.ErrorAPI{Error: error.Error()})
+		return
+	}
+
+	url := fmt.Sprintf("%s/publications/%d", config.APIURL, publicationID)
+	getResponse, error := request.RequestWithAuth(r, http.MethodDelete, url, nil)
 
 	if error != nil {
 		response.JSON(w, http.StatusInternalServerError, response.ErrorAPI{Error: error.Error()})

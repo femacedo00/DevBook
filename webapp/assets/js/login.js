@@ -6,13 +6,16 @@ function loginUser(event) {
         url: "/login",
         method: "POST",
         data: {
-           email: $("#email").val(),
-           password: $("#password").val()
+            email: $("#email").val(),
+            password: $("#password").val()
         }
-    }).done(function() {
+    }).done(function () {
         window.location.href = "/home";
-    }).fail(function(error) {
-        console.log(error);
-        alert("User Authentication Failed!")
+    }).fail(function (error) {
+        swal.fire(
+            "Ops...",
+            "User Authentication Failed!",
+            "error"
+        );
     });
 }

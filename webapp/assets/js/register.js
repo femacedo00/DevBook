@@ -4,7 +4,11 @@ function registerUser(event) {
     event.preventDefault();
 
     if ($("#password").val() != $("#confirm-password").val()) {
-        alert("Password not match!");
+        swal.fire(
+            "Ops...",
+            "Password not match!",
+            "error"
+        );
         return;
     }
 
@@ -12,15 +16,39 @@ function registerUser(event) {
         url: "/users",
         method: "POST",
         data: {
-           name: $("#name").val(),
-           email: $("#email").val(),
-           nick: $("#nick").val(),
-           password: $("#password").val()
+            name: $("#name").val(),
+            email: $("#email").val(),
+            nick: $("#nick").val(),
+            password: $("#password").val()
         }
-    }).done(function() {
-        alert("User Successufully Registered!");
-    }).fail(function(error) {
-        console.log(error);
-        alert("User Registration Failed!")
+    }).done(function () {
+        swal.fire(
+            "Success!",
+            "User Successufully Registered!",
+            "success"
+        ).then(function () {
+            $.ajax({
+                url: "/login",
+                method: "POST",
+                data: {
+                    email: $("#email").val(),
+                    password: $("#password").val()
+                }
+            }).done(function () {
+                window.location = "/home";
+            }).fail(function () {
+                swal.fire(
+                    "Ops...",
+                    "User Authentication Failed!",
+                    "error"
+                );
+            });
+        });
+    }).fail(function () {
+        swal.fire(
+            "Ops...",
+            "User Registration Failed!",
+            "error"
+        );
     });
 }

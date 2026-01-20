@@ -16,10 +16,19 @@ function createPublication(event) {
             content: $('#content').val(),
         }
     }).done(function () {
-        alert("Post successfully saved!");
-        window.location = "/home";
+        swal.fire(
+            "Success!",
+            "Post successfully saved!",
+            "success"
+        ).then(function () {
+            window.location = "/home";
+        });
     }).fail(function () {
-        alert("Error saving post!");
+        swal.fire(
+            "Ops...",
+            "Error saving post!",
+            "error"
+        );
     });
 }
 
@@ -43,7 +52,11 @@ function likePublication(event) {
         likeElement.addClass("text-danger")
         likeElement.removeClass("like-publication")
     }).fail(function () {
-        alert("Error liking the post!")
+        swal.fire(
+            "Ops...",
+            "Error liking the post!",
+            "error"
+        );
     }).always(function () {
         likeElement.prop("disabled", false);
     });
@@ -69,7 +82,11 @@ function dislikePublication(event) {
         likeElement.removeClass("text-danger")
         likeElement.addClass("like-publication")
     }).fail(function () {
-        alert("Error disliking the post!")
+        swal.fire(
+            "Ops...",
+            "Error disliking the post!",
+            "error"
+        );
     }).always(function () {
         likeElement.prop("disabled", false);
     });
@@ -77,8 +94,8 @@ function dislikePublication(event) {
 
 function updatePublication() {
     const publication = this;
-    const publicationID =  $(publication).data("publication-id");
-    
+    const publicationID = $(publication).data("publication-id");
+
     $(publication).prop("disabled", true);
 
     $.ajax({
@@ -88,11 +105,21 @@ function updatePublication() {
             title: $("#title").val(),
             content: $("#content").val(),
         }
-    }).done(function(){
-        alert("Post successfully updated")
-    }).fail(function(){
-        alert("Error updating the post!")
-    }).always(function(){
+    }).done(function () {
+        swal.fire(
+            "Success!",
+            "Post successfully updated!",
+            "success"
+        ).then(function () {
+            window.location = "/home";
+        });
+    }).fail(function () {
+        swal.fire(
+            "Ops...",
+            "Error updating the post!",
+            "error"
+        );
+    }).always(function () {
         $(publication).prop("disabled", false);
     });
 }
@@ -100,20 +127,33 @@ function updatePublication() {
 function deletePublication(event) {
     event.preventDefault();
 
-    const deleteElement = $(event.target);
-    const publication = deleteElement.closest("div.bg-body-tertiary");
-    const publicationID = publication.data("publication-id");
+    swal.fire({
+        title: "Are you sure you want to delete this post?",
+        text: "This action cannot be undone!",
+        showCancelButton: true,
+        icon: "warning"
+    }).then(function (cancel) {
+        if (!cancel.value) return;
 
-    deleteElement.prop("disabled", true);
+        const deleteElement = $(event.target);
+        const publication = deleteElement.closest("div.bg-body-tertiary");
+        const publicationID = publication.data("publication-id");
 
-    $.ajax({
-        url: `/publications/${publicationID}`,
-        method: "DELETE"
-    }).done(function() {
-        publication.fadeOut("slow", function() {
-            $(this).remove();
-        })
-    }).fail(function() {
-        alert("Error deleting post");
+        deleteElement.prop("disabled", true);
+
+        $.ajax({
+            url: `/publications/${publicationID}`,
+            method: "DELETE"
+        }).done(function () {
+            publication.fadeOut("slow", function () {
+                $(this).remove();
+            })
+        }).fail(function () {
+            swal.fire(
+            "Ops...",
+            "Error deleting post!",
+            "error"
+        );
+        });
     });
 }

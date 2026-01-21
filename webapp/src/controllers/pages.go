@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"webapp/src/config"
 	"webapp/src/cookies"
 	"webapp/src/models"
@@ -101,4 +102,30 @@ func LoadUpdatePublicationPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.ExecuteHtmlTemplate(w, "update-publication.html", publications)
+}
+
+// LoadUsersPages loads the page that displays users based on a search filter
+func LoadUsersPages(w http.ResponseWriter, r *http.Request) {
+	nameOrNick := strings.ToLower(r.URL.Query().Get("user"))
+	url := fmt.Sprintf("%s/users?user=%s", config.APIURL, nameOrNick)
+
+	getResponse, error := request.RequestWithAuth(r, http.MethodGet, url, nil)
+	if error != nil {
+		response.JSON(w, http.StatusInternalServerError, response.ErrorAPI{Error: error.Error()})
+		return
+	}
+	defer getResponse.Body.Close()
+
+	if getResponse.StatusCode >= 400 {
+		response.HandleErrorStatusCode(w, getResponse)
+		return
+	}
+
+	var users []models.User
+	if error = json.NewDecoder(getResponse.Body).Decode(&users); error != nil {
+		response.JSON(w, http.StatusUnprocessableEntity, response.ErrorAPI{Error: error.Error()})
+		return
+	}
+
+	utils.ExecuteHtmlTemplate(w, "users.html", users)
 }

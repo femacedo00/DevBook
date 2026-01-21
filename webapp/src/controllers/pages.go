@@ -51,6 +51,7 @@ func LoadHomePage(w http.ResponseWriter, r *http.Request) {
 	defer getResponse.Body.Close()
 
 	if getResponse.StatusCode >= 400 {
+		cookies.Delete(w)
 		response.HandleErrorStatusCode(w, getResponse)
 		return
 	}
@@ -140,5 +141,5 @@ func LoadUserProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, error := models.SearchCompleteUser(userId, r)
-	fmt.Println(user)
+	fmt.Println(user, error)
 }

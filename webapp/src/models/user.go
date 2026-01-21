@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -23,17 +24,57 @@ type User struct {
 
 // SearchCompleteUser requests four different APIs to aggregate user information
 func SearchCompleteUser(userID uint64, r *http.Request) (User, error) {
-	channelUser := make(chan User)
-	channelFollowers := make(chan []User)
-	channelFollowing := make(chan []User)
-	channelPublications := make(chan []Publication)
+	userChannel := make(chan User)
+	followersChannel := make(chan []User)
+	followingChannel := make(chan []User)
+	publicationsChannel := make(chan []Publication)
 
-	go SearchUserData(channelUser, userID, r)
-	go SearchFollowersData(channelFollowers, userID, r)
-	go SearchFollowingData(channelFollowing, userID, r)
-	go SearchPublicationsData(channelPublications, userID, r)
+	go SearchUserData(userChannel, userID, r)
+	go SearchFollowersData(followersChannel, userID, r)
+	go SearchFollowingData(followingChannel, userID, r)
+	go SearchPublicationsData(publicationsChannel, userID, r)
 
-	return User{}, nil
+	var (
+		user         User
+		followers    []User
+		following    []User
+		publications []Publication
+	)
+
+	for i := 0; i < 4; i++ {
+		select {
+		case loadedUser := <-userChannel:
+			if loadedUser.ID == 0 {
+				return User{}, errors.New("Error searching user!")
+			}
+
+			user = loadedUser
+		case loadedFollowers := <-followersChannel:
+			if loadedFollowers == nil {
+				return User{}, errors.New("Error searching followers!")
+			}
+
+			followers = loadedFollowers
+		case loadedFollowing := <-followingChannel:
+			if loadedFollowing == nil {
+				return User{}, errors.New("Error searching who user is following!")
+			}
+
+			following = loadedFollowing
+		case loadedPublications := <-publicationsChannel:
+			if loadedPublications == nil {
+				return User{}, errors.New("Error searching publications!")
+			}
+
+			publications = loadedPublications
+		}
+	}
+
+	user.Followers = followers
+	user.Following = following
+	user.Publications = publications
+
+	return user, nil
 }
 
 // SearchUserData retrieves the main user data from the API.

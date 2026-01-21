@@ -1,8 +1,12 @@
 package models
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
+	"webapp/src/config"
+	"webapp/src/request"
 )
 
 // User represents a person using the application
@@ -32,10 +36,78 @@ func SearchCompleteUser(userID uint64, r *http.Request) (User, error) {
 	return User{}, nil
 }
 
-func SearchUserData(channel <-chan User, userID uint64, r *http.Request) {}
+// SearchUserData retrieves the main user data from the API.
+func SearchUserData(channel chan<- User, userID uint64, r *http.Request) {
+	url := fmt.Sprintf("%s/users/%d", config.APIURL, userID)
+	getResponse, error := request.RequestWithAuth(r, http.MethodGet, url, nil)
+	if error != nil {
+		channel <- User{}
+		return
+	}
+	defer getResponse.Body.Close()
 
-func SearchFollowersData(channel <-chan []User, userID uint64, r *http.Request) {}
+	var user User
+	if error = json.NewDecoder(getResponse.Body).Decode(&user); error != nil {
+		channel <- User{}
+		return
+	}
 
-func SearchFollowingData(channel <-chan []User, userID uint64, r *http.Request) {}
+	channel <- user
+}
 
-func SearchPublicationsData(channel <-chan []Publication, userID uint64, r *http.Request) {}
+// SearchFollowersData retrieves the user followers data from the API.
+func SearchFollowersData(channel chan<- []User, userID uint64, r *http.Request) {
+	url := fmt.Sprintf("%s/users/%d/followers", config.APIURL, userID)
+	getResponse, error := request.RequestWithAuth(r, http.MethodGet, url, nil)
+	if error != nil {
+		channel <- nil
+		return
+	}
+	defer getResponse.Body.Close()
+
+	var followers []User
+	if error = json.NewDecoder(getResponse.Body).Decode(&followers); error != nil {
+		channel <- nil
+		return
+	}
+
+	channel <- followers
+}
+
+// SearchFollowingData retrieves the user following data from the API.
+func SearchFollowingData(channel chan<- []User, userID uint64, r *http.Request) {
+	url := fmt.Sprintf("%s/users/%d/following", config.APIURL, userID)
+	getResponse, error := request.RequestWithAuth(r, http.MethodGet, url, nil)
+	if error != nil {
+		channel <- nil
+		return
+	}
+	defer getResponse.Body.Close()
+
+	var following []User
+	if error = json.NewDecoder(getResponse.Body).Decode(&following); error != nil {
+		channel <- nil
+		return
+	}
+
+	channel <- following
+}
+
+// SearchPublicationsData retrieves the user publications data from the API.
+func SearchPublicationsData(channel chan<- []Publication, userID uint64, r *http.Request) {
+	url := fmt.Sprintf("%s/users/%d/publications", config.APIURL, userID)
+	getResponse, error := request.RequestWithAuth(r, http.MethodGet, url, nil)
+	if error != nil {
+		channel <- nil
+		return
+	}
+	defer getResponse.Body.Close()
+
+	var publications []Publication
+	if error = json.NewDecoder(getResponse.Body).Decode(&publications); error != nil {
+		channel <- nil
+		return
+	}
+
+	channel <- publications
+}

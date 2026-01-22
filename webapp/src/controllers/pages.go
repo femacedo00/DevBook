@@ -52,7 +52,7 @@ func LoadHomePage(w http.ResponseWriter, r *http.Request) {
 
 	if getResponse.StatusCode >= 400 {
 		cookies.Delete(w)
-		response.HandleErrorStatusCode(w, getResponse)
+		http.Redirect(w, r, "/login", 302)
 		return
 	}
 
@@ -92,7 +92,7 @@ func LoadUpdatePublicationPage(w http.ResponseWriter, r *http.Request) {
 	defer getResponse.Body.Close()
 
 	if getResponse.StatusCode >= 400 {
-		response.HandleErrorStatusCode(w, getResponse)
+		http.Redirect(w, r, "/home", 302)
 		return
 	}
 
@@ -118,7 +118,7 @@ func LoadUsersPages(w http.ResponseWriter, r *http.Request) {
 	defer getResponse.Body.Close()
 
 	if getResponse.StatusCode >= 400 {
-		response.HandleErrorStatusCode(w, getResponse)
+		http.Redirect(w, r, "/home", 302)
 		return
 	}
 
@@ -141,5 +141,19 @@ func LoadUserProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, error := models.SearchCompleteUser(userId, r)
-	fmt.Println(user, error)
+	if error != nil {
+		response.JSON(w, http.StatusInternalServerError, response.ErrorAPI{Error: error.Error()})
+		return
+	}
+
+	cookie, _ := cookies.Read(r)
+	loggedInUserID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	utils.ExecuteHtmlTemplate(w, "user.html", struct {
+		User           models.User
+		LoggedInUserID uint64
+	}{
+		User:           user,
+		LoggedInUserID: loggedInUserID,
+	})
 }

@@ -7,7 +7,7 @@
             </div>
             <div class="modal-body d-grid">
                 {{ range .Followers }}
-                    <a href="/users/{{ .ID }}">{{ .Nick }}</a>
+                    <a class="link-offset-2 link-underline link-underline-opacity-0" href="/users/{{ .ID }}">{{ .Nick }}</a>
                 {{ else }}
                     <p class="text-muted text-center">
                         There is nobody here

@@ -3,19 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevBook - {{ .User.Name }} </title>
+    <title>DevBook - My Profile </title>
     <link href="/assets/css/bootstrap.css" rel="stylesheet" />
 </head>
 
 <body>
     {{template "header"}}
-
-    {{ $followedByLoggedUser := false }}
-        {{ range .User.Followers }}
-        {{ if (eq .ID $.LoggedInUserID )}}
-            {{ $followedByLoggedUser = true }}
-        {{ end }}
-    {{ end }}
 
     <div class="container-fluid">
         <div class="row mt-4">
@@ -24,36 +17,32 @@
                     <div class="card-body">
                         <h5 class="card-title">User Profile</h5>
                         <h6 class="card-subtitle mb-2 text-muted">
-                            {{ .User.Name }} - {{ .User.Nick }} - Member Since: {{ .User.CreatedIn.Format "02/01/2006"
+                            {{ .Name }} - {{ .Nick }} - Member Since: {{ .CreatedIn.Format "02/01/2006"
                             }}
                         </h6>
 
                         <p class="card-text">
                             <a class="link-offset-2 link-underline link-underline-opacity-0" href="#" data-bs-toggle="modal" data-bs-target="#followers-modal">
-                                Followers: {{ len .User.Followers}}
+                                Followers: {{ len .Followers}}
                             </a>
                         </p>
 
-                        <p class="card-text" data-bs-toggle="modal" data-bs-target="#following-modal">
+                        <p class="card-text">
                             <a class="link-offset-2 link-underline link-underline-opacity-0" href="#" data-bs-toggle="modal" data-bs-target="#following-modal">
-                                Following: {{ len .User.Following}}
+                                Following: {{ len .Following}}
                             </a>
                         </p>
 
-                        <a class="link-offset-2 link-underline link-underline-opacity-0 card-link" href="#">
-                            {{ if $followedByLoggedUser }}
-                            <button id="unfollow" class="btn btn-info" data-user-id="{{ .User.ID }}">
-                                Unfollow
-                            </button>
-
-                            {{ else }}
-
-                            <button id="follow" class="btn btn-info" data-user-id="{{ .User.ID }}">
-                                Follow
-                            </button>
-
-                            {{ end }}
-                        </a>
+                        <div class="row">
+                            <div class="col-12">
+                                <a href="/edit-user" type="button" class="btn btn-info">
+                                    Edit data
+                                </a>
+                                <a href="/update-password" type="button" class="btn btn-info">
+                                    Update Password
+                                </a>
+                            </div>
+                        </div>
 
                     </div>
                 </div>
@@ -64,10 +53,10 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">{{ .User.Nick }} Publications</h5>
+                        <h5 class="card-title">My Publications</h5>
                         <p class="card-text">
-                            {{ range .User.Publications }}
-                                {{ template "permission-without-permission" . }}
+                            {{ range .Publications }}
+                                {{ template "permission-with-permission" . }}
                             {{ else }}
                                 <p class="text-muted text-center">
                                     There is no content!
@@ -80,8 +69,8 @@
         </div>
     </div>
 
-    {{ template "followers-modal" .User }}
-    {{ template "following-modal" .User }}
+    {{ template "followers-modal" . }}
+    {{ template "following-modal" . }}
     {{ template "footer" }}
     {{ template "scripts" }}
     <script src="/assets/js/publications.js"></script>

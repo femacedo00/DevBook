@@ -6,7 +6,7 @@
 {{ end }}
 
 {{ define "edit" }}
-    <a href="/publications/{{ .ID }}/update" style="text-decoration: none;">
+    <a class="link-offset-2 link-underline link-underline-opacity-0" href="/publications/{{ .ID }}/update" style="text-decoration: none;">
         <i class="fa-solid fa-pen-to-square"></i>
     </a>
 {{ end }}
@@ -18,7 +18,7 @@
 {{ define "header-publication" }}
     <h1 class="display-4 fw-bold">{{ .Title }}</h1>
     <p class="col-md-8 fs-4">{{ .Content }}</p>
-    <a href="#">{{ .AuthorNick }} - {{ .CreatedIn.Format "02/01/2006 3:4" }}</a>
+    <a class="link-offset-2 link-underline link-underline-opacity-0" href="/users/{{ .AuthorID }}">{{ .AuthorNick }} - {{ .CreatedIn.Format "02/01/2006 3:4" }}</a>
     <hr class="my-4">
 {{ end }}
 

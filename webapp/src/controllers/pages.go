@@ -131,12 +131,20 @@ func LoadUsersPages(w http.ResponseWriter, r *http.Request) {
 	utils.ExecuteHtmlTemplate(w, "users.html", users)
 }
 
-// LoadUsersPages loads the user's profile page
+// LoadUserProfile loads the user's profile page
 func LoadUserProfile(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	userId, error := strconv.ParseUint(params["userId"], 10, 64)
 	if error != nil {
 		response.JSON(w, http.StatusBadRequest, response.ErrorAPI{Error: error.Error()})
+		return
+	}
+
+	cookie, _ := cookies.Read(r)
+	loggedInUserID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	if userId == loggedInUserID {
+		http.Redirect(w, r, "/profile", 302)
 		return
 	}
 
@@ -146,9 +154,6 @@ func LoadUserProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, _ := cookies.Read(r)
-	loggedInUserID, _ := strconv.ParseUint(cookie["id"], 10, 64)
-
 	utils.ExecuteHtmlTemplate(w, "user.html", struct {
 		User           models.User
 		LoggedInUserID uint64
@@ -156,4 +161,18 @@ func LoadUserProfile(w http.ResponseWriter, r *http.Request) {
 		User:           user,
 		LoggedInUserID: loggedInUserID,
 	})
+}
+
+// LoadLoggedInProfilePage loads the logged in user's profile page
+func LoadLoggedInProfilePage(w http.ResponseWriter, r *http.Request) {
+	cookie, _ := cookies.Read(r)
+	userID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	user, error := models.SearchCompleteUser(userID, r)
+	if error != nil {
+		response.JSON(w, http.StatusInternalServerError, response.ErrorAPI{Error: error.Error()})
+		return
+	}
+
+	utils.ExecuteHtmlTemplate(w, "profile.html", user)
 }

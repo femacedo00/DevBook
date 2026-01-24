@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"webapp/src/config"
+	"webapp/src/cookies"
 	"webapp/src/request"
 	"webapp/src/response"
 
@@ -81,6 +82,38 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 
 	url := fmt.Sprintf("%s/users/%d/follow", config.APIURL, userID)
 	getResponse, error := request.RequestWithAuth(r, http.MethodPost, url, nil)
+	if error != nil {
+		response.JSON(w, http.StatusInternalServerError, response.ErrorAPI{Error: error.Error()})
+		return
+	}
+	defer getResponse.Body.Close()
+
+	if getResponse.StatusCode >= 400 {
+		response.HandleErrorStatusCode(w, getResponse)
+		return
+	}
+
+	response.JSON(w, getResponse.StatusCode, nil)
+}
+
+// EditUser calls an API to edit a user in the database
+func EditUser(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	user, error := json.Marshal(map[string]string{
+		"name":  r.FormValue("name"),
+		"email": r.FormValue("email"),
+		"nick":  r.FormValue("nick"),
+	})
+	if error != nil {
+		response.JSON(w, http.StatusBadRequest, response.ErrorAPI{Error: error.Error()})
+		return
+	}
+
+	cookie, _ := cookies.Read(r)
+	userID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	url := fmt.Sprintf("%s/users/%d", config.APIURL, userID)
+	getResponse, error := request.RequestWithAuth(r, http.MethodPut, url, bytes.NewBuffer(user))
 	if error != nil {
 		response.JSON(w, http.StatusInternalServerError, response.ErrorAPI{Error: error.Error()})
 		return

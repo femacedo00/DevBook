@@ -1,0 +1,41 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevBook - Edit User </title>
+    <link href="/assets/css/bootstrap.css" rel="stylesheet" />
+</head>
+
+<body>
+    {{template "header"}}
+
+    <div class="container-fluid">
+        <div class="row mt-4">
+            <div class="col-12">
+                <h3>Edit Data</h3>
+                <form id="edit-user">
+                    <div>
+                        <label class="py-1" for="name">Name</label>
+                        <input class="form-control my-1" type="text" name="name" id="name" placeholder="Enter your name" value="{{ .Name }}" required>
+                    </div>
+                    <div>
+                        <label class="py-1" for="email">E-mail</label>
+                        <input class="form-control my-1" type="text" name="email" id="email" placeholder="Enter your email" value="{{ .Email }}" required>
+                    </div>
+                    <div>
+                        <label class="py-1" for="nick">Nick</label>
+                        <input class="form-control my-1" type="text" name="nick" id="nick" placeholder="Enter your nick" value="{{ .Nick }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-info my-2">Uptade Data</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{ template "footer" }}
+    {{ template "scripts" }}
+    <script src="/assets/js/user.js"></script>
+</body>
+
+</html>

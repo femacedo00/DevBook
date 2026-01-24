@@ -176,3 +176,19 @@ func LoadLoggedInProfilePage(w http.ResponseWriter, r *http.Request) {
 
 	utils.ExecuteHtmlTemplate(w, "profile.html", user)
 }
+
+// LoadEditProfilePage loads the page to edit the user's profile
+func LoadEditProfilePage(w http.ResponseWriter, r *http.Request) {
+	cookie, _ := cookies.Read(r)
+	userID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	channel := make(chan models.User)
+	go models.SearchUserData(channel, userID, r)
+	user := <-channel
+
+	if user.ID == 0 {
+		response.JSON(w, http.StatusInternalServerError, response.ErrorAPI{Error: "Error searching user"})
+	}
+
+	utils.ExecuteHtmlTemplate(w, "edit-user.html", user)
+}

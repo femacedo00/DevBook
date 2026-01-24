@@ -114,6 +114,7 @@ func SearchFollowersData(channel chan<- []User, userID uint64, r *http.Request) 
 
 	if followers == nil {
 		channel <- make([]User, 0)
+		return
 	}
 
 	channel <- followers
@@ -137,6 +138,7 @@ func SearchFollowingData(channel chan<- []User, userID uint64, r *http.Request) 
 
 	if following == nil {
 		channel <- make([]User, 0)
+		return
 	}
 
 	channel <- following
@@ -160,6 +162,7 @@ func SearchPublicationsData(channel chan<- []Publication, userID uint64, r *http
 
 	if publications == nil {
 		channel <- make([]Publication, 0)
+		return
 	}
 
 	channel <- publications

@@ -127,3 +127,34 @@ func EditUser(w http.ResponseWriter, r *http.Request) {
 
 	response.JSON(w, getResponse.StatusCode, nil)
 }
+
+// UpdatePassword calls an API to update a user's password in the database
+func UpdatePassword(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	passwords, error := json.Marshal(map[string]string{
+		"current": r.FormValue("current"),
+		"new":     r.FormValue("new"),
+	})
+	if error != nil {
+		response.JSON(w, http.StatusBadRequest, response.ErrorAPI{Error: error.Error()})
+		return
+	}
+
+	cookie, _ := cookies.Read(r)
+	userID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	url := fmt.Sprintf("%s/users/%d/update-password", config.APIURL, userID)
+	getResponse, error := request.RequestWithAuth(r, http.MethodPost, url, bytes.NewBuffer(passwords))
+	if error != nil {
+		response.JSON(w, http.StatusInternalServerError, response.ErrorAPI{Error: error.Error()})
+		return
+	}
+	defer getResponse.Body.Close()
+
+	if getResponse.StatusCode >= 400 {
+		response.HandleErrorStatusCode(w, getResponse)
+		return
+	}
+
+	response.JSON(w, getResponse.StatusCode, nil)
+}

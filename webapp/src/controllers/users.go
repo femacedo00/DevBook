@@ -158,3 +158,24 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 
 	response.JSON(w, getResponse.StatusCode, nil)
 }
+
+// DeletePassword calls an API to delete the user in the database
+func DeletePassword(w http.ResponseWriter, r *http.Request) {
+	cookie, _ := cookies.Read(r)
+	userID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	url := fmt.Sprintf("%s/users/%d", config.APIURL, userID)
+	getResponse, error := request.RequestWithAuth(r, http.MethodDelete, url, nil)
+	if error != nil {
+		response.JSON(w, http.StatusInternalServerError, response.ErrorAPI{Error: error.Error()})
+		return
+	}
+	defer getResponse.Body.Close()
+
+	if getResponse.StatusCode >= 400 {
+		response.HandleErrorStatusCode(w, getResponse)
+		return
+	}
+
+	response.JSON(w, getResponse.StatusCode, nil)
+}

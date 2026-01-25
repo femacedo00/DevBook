@@ -1,4 +1,4 @@
-# DevBook - Social Network in Go 🐹
+# DevBook - Social Network in Go
 
 ![Go Version](https://img.shields.io/badge/go-1.21+-00ADD8?style=flat-square&logo=go)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
@@ -35,6 +35,3 @@ The system is divided into two main modules: **API** (Backend) and **WebApp** (F
 
 ### Prerequisites
 - [Go](https://golang.org/dl/) installed.
-
-```bash
-cp .env.example .env
